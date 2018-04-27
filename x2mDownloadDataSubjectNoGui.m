@@ -2,7 +2,7 @@
 %you can get it from get functions x2m:
     % getSubjects, getSubjectsByProject, getSubjectFromProject
     
-function x2mDownloadDataSubjectNoGui(servers,dataSubjectsDetailed)
+function x2mDownloadDataSubjectNoGui(selpath,servers,dataSubjectsDetailed)
     
     serverName = fieldnames(dataSubjectsDetailed);
     
@@ -41,8 +41,7 @@ function x2mDownloadDataSubjectNoGui(servers,dataSubjectsDetailed)
                     c = clock;
 
                     %create home folder with name YYYY_MM_DD
-                    folder_temp = userpath;
-                    folder_date_name = fullfile(folder_temp(1:end-1),[num2str(c(1)) '_' num2str(c(2),'%02d') '_' num2str(c(3),'%02d')]); %strcat(strrep(userpath,';',''),'\',num2str(c(1)),'_',num2str(c(2),'%02d'),'_',num2str(c(3),'%02d'));
+                    folder_date_name = fullfile(selpath,[num2str(c(1)) '_' num2str(c(2),'%02d') '_' num2str(c(3),'%02d')]); 
                     warning('off','all')
                     mkdir(folder_date_name);
 

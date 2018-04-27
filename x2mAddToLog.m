@@ -1,10 +1,10 @@
 % year = num2str(c(1),'%02d');
 % month = num2str(c(2),'%02d');
 % day = num2str(c(3),'%02d');
-function x2mAddToLog(type,server,user,error,project,subject,experiment,query,numerOfFile,voxelSize)
+function x2mAddToLog(type,server,user,error,subject,experiment,query,numerOfFile,voxelSize)
 global    log;
 global    time ;
-global    actions;
+global    action;
 global    servers;
 global    users;
 global    errors;

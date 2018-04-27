@@ -49,6 +49,8 @@ function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 guidata(hObject, handles);
 clear_all(hObject, eventdata, handles,'First');
+global selpath;
+selpath = x2mSetPath;
 LoadServers(handles);
     
 
@@ -64,11 +66,7 @@ function query_Callback(hObject, eventdata, handles)
         emailGet;                               % get email to send job done    
     end
      
-    
-    check = checkObligatory(handles);
-    
-   
-   
+    check = checkObligatory(handles);   
     
     if check ~= 1
     
@@ -273,9 +271,9 @@ if maxSubjects == 0;
     maxSubjects = inf;
 end
 
-global serversConnected
-global project
-
+global serversConnected;
+global project;
+global selpath;
 noSubjects = handles.found.Value;
 
 if noSubjects == 789789
@@ -287,7 +285,7 @@ if noSubjects > 0
     if strcmp(regexType,'regex Type')
        regexType = ''; 
     end
-    success = x2mDownloadData(data,maxSubjects,regexType,serversConnected,handles.Auto.Value,project,noSubjects);
+    success = x2mDownloadData(selpath,data,maxSubjects,regexType,serversConnected,handles.Auto.Value,project,noSubjects);
 
 
     clear_all(hObject, eventdata, handles,'Random');
@@ -295,13 +293,15 @@ if noSubjects > 0
 
 
     if handles.Auto.Value == 1
-        global email
+        global email;
+        
         x2mSendMail(email)
     else
         set_busy(hObject, eventdata, handles,0) % unset busy
         msgbox('Operation Completed check folder named with today date in current folder');
     end
-    x2mPrintLog;
+  
+    x2mPrintLog(selpath);
     LoadServers(handles);
 else
     msgbox('Operation can not be done since you selected 0 subjects via "by Project selection"');
@@ -399,83 +399,12 @@ function handles = clear_all(hObject, eventdata, handles,type)
 function addServer_Callback(hObject, eventdata, handles)
 
 servers = getGlobalDataSeversConnected;
+global selpath;
+servers = x2mAddServer(selpath,servers);
 
-if size(servers,1) > 0    
-    servers = rmfield(servers,{'Connect','NumberOfHits','Check'});    
-    field1 = 'name';
-    field2 = 'user';
-    field3 = 'password';
-    prompt = {'Enter server url:','Enter user name to server:','Enter password to server:'};
-    dlg_title = 'Add Server';
-    num_lines = 1;
-    defaultans = {'https://czarnobyl.ibib.waw.pl','User','Password'};
-    server_temp = inputdlg(prompt,dlg_title,num_lines,defaultans);
-    
-    if ~isempty(server_temp)
-    
-        value1 = server_temp{1};
-        value2 = server_temp{2};
-        value3 = server_temp{3};
+LoadServers(handles);
 
-        try
 
-            x2mCheckConnection(value1,value2,value3,'Adding server');
-          %  passwordEncrypted = x2mPasswordEncrypt(value3);
-            servers(end+1) = struct(field1,value1,field2,value2,field3,value3);
-           % setGlobalDataServersConnected(servers(end));
-           % servers(end).password = passwordEncrypted;
-            servers = servers;
-            %make servers Unique
-                a= {servers.name};
-                b= {servers.user};
-                c=cellfun(@(x,y) [x y],a', b','un',0);
-                [ii,ii]=unique(c,'stable');
-                servers=servers(ii);
-            %make servers Unique
-
-            folder = userpath;
-            fullMatFileName = fullfile(folder(1:end-1),  'servers.mat');
-            save(fullMatFileName,'servers')
-            LoadServers(handles);
-
-        catch baseException
-            disp([ baseException.identifier baseException.message ]);
-        end
-    end
-else    
-
-    field1 = 'name';  
-    field2 = 'user'; 
-    field3 = 'password';
-    
-    prompt = {'Enter server url:','Enter user name to server:','Enter password to server:'};
-    dlg_title = 'Add Server';
-    num_lines = 1;
-    defaultans = {'https://czarnobyl.ibib.waw.pl','User','Password'};
-    server_temp = inputdlg(prompt,dlg_title,num_lines,defaultans);
-    
-    if ~isempty(server_temp)
-        
-        value1 = server_temp{1};
-        value2 = server_temp{2};
-        value3 = server_temp{3};
-
-        try
-
-            x2mCheckConnection(value1,value2,value3,'Adding server');
-          %  passwordEncrypted = x2mPasswordEncrypt(value3);
-            servers = struct(field1,value1,field2,value2,field3,value3);
-       %     setGlobalDataServersConnected(servers);
-       %     servers.password = passwordEncrypted;
-            folder = userpath;
-            fullMatFileName = fullfile(folder(1:end-1),  'servers.mat');
-            save(fullMatFileName,'servers')
-            LoadServers(handles);
-        catch baseException
-            disp([ baseException.identifier baseException.message ]);
-        end
-    end
-end
    
 
 function LoadServers(handles)
@@ -483,9 +412,8 @@ function LoadServers(handles)
 ConnectedServersCounter = 0; %counter of how many servers are connected;
 clearvars -global serversConnected       
 try
-    
-    folder = userpath;
-    fullMatFileName = fullfile(folder(1:end-1),  'servers.mat');
+    global selpath;
+    fullMatFileName = fullfile(selpath,  'servers.mat');
     servers = load(fullMatFileName);
     servers = servers.servers;
     
@@ -697,9 +625,8 @@ end
 % --- Executes on button press in DeleteServer.
 function DeleteServer_Callback(hObject, eventdata, handles)
  try
-     
-     folder = userpath;
-     fullMatFileName = fullfile(folder(1:end-1),  'servers.mat');
+     global selpath;
+     fullMatFileName = fullfile(selpath,  'servers.mat');
      servers = load(fullMatFileName);
      servers = servers.servers;
      d = servers;
@@ -755,3 +682,4 @@ function DeleteServer_Callback(hObject, eventdata, handles)
      warning('on','all')
      disp(me.message);
  end
+ 

@@ -1,10 +1,9 @@
-function [servers,me] = x2mLoadServersNoGui
+function [servers,me] = x2mLoadServersNoGui(selpath)
 
 servers = [];
 try
     % try to load servers
-    folder = userpath;
-    fullMatFileName = fullfile(folder(1:end-1),  'servers.mat');
+    fullMatFileName = fullfile(selpath,  'servers.mat');
     servers_temp = load(fullMatFileName);
     servers_temp = servers_temp.servers;
     me = 'No';
@@ -23,9 +22,8 @@ try
     	end
         
     end
-    
-    
+       
 catch me
-      disp('No servers configurated or they are not in userpath folder');
-      disp(me.message);
+              disp('No servers configurated or they are not in path folder');
+              disp(me.message);
 end

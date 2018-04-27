@@ -8,7 +8,7 @@
 %projects -> projects name in table to download only sufficient data
 %noSubjects -> Number of subjects from data
 
-function success_output = x2mDownloadData( data,maxSubjects,regexType,serversConnected,type,projects,noSubjects)
+function success_output = x2mDownloadData( selpath,data,maxSubjects,regexType,serversConnected,type,projects,noSubjects)
 
 %this determinate how much data it is
 
@@ -25,6 +25,7 @@ for n = 1:size(data,1)
   
   %break if maxSubjects condition fulfilled
   if SubjectsCounter >= maxSubjects
+      disp( 'Download stops Max no of Subjects downloaded ')
       break    
   end
   
@@ -37,7 +38,8 @@ for n = 1:size(data,1)
             end
         end
         
-        if skip == 1 % skip if either server not connected or project is not relevant
+        if skip == 1 % skip if server is uncheked
+            disp([ 'Omitting '  sub '  because of Server selection '])
            continue
         end  
         
@@ -52,7 +54,8 @@ for n = 1:size(data,1)
             skip = 0;         
          end
      end
-     if skip == 1 % skip if either server not connected or project is not relevant
+     if skip == 1 % skip if project is not relevant
+          disp([ 'Omitting '  sub '  because of Project selection '])
        continue
      end  
     end
@@ -112,7 +115,7 @@ for n = 1:size(data,1)
                 end
             end
         else    
-            scans = 'ALL';                                                   %change to ALL 
+            scans = '1';                                                   %to test change to other 
                     
         end
             
@@ -128,8 +131,8 @@ for n = 1:size(data,1)
             c = clock;
 
             %create home folder with name YYYY_MM_DD
-            folder_temp = userpath;
-            folder_date_name = fullfile(folder_temp(1:end-1),[num2str(c(1)) '_' num2str(c(2),'%02d') '_' num2str(c(3),'%02d')]); %strcat(strrep(userpath,';',''),'\',num2str(c(1)),'_',num2str(c(2),'%02d'),'_',num2str(c(3),'%02d'));
+            folder_temp = selpath;
+            folder_date_name = fullfile(selpath,[num2str(c(1)) '_' num2str(c(2),'%02d') '_' num2str(c(3),'%02d')]); 
             warning('off','all')
             mkdir(folder_date_name);
 

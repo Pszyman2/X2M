@@ -9,18 +9,24 @@
     
 %for additional information go to functions or refer to documentation
 function x2mExample(projectName)
-     servers = x2mLoadServersNoGui; % load Servers
+    [selpath,flagServers] = x2mSetPath;
+    
+    if flagServers ~= true
+       x2mAddServersNoGui(selpath);
+    end
+
+     servers = x2mLoadServersNoGui(selpath); % load Servers
      if ~isempty(servers)
          upTo = 10;                     % upTo determine number of max subjects to be downloaded
 
         [dataSubjects,dataSubjectsDetailed] = x2mGetSubjectsFromProject(servers,projectName,upTo); % pass project name and server sturcute from function x2mLoadServersNoGui
 
-        x2mDownloadDataSubjectNoGui(servers,dataSubjectsDetailed);
+        x2mDownloadDataSubjectNoGui(selpath,servers,dataSubjectsDetailed);
 
         x2mPrintLog;
-        disp('end of action check userpath folder for your data, and read log for additional information');
+        disp('end of action check selpath folder for your data, and read log for additional information');
      else
-         disp('check servers.mat in userpath, there is an error with servers or the authorization failed');
+         disp('check servers.mat in selpath, there is an error with servers or the authorization failed');
      end
-                                                
+
     
