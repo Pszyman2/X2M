@@ -22,7 +22,7 @@ function varargout = x2mGUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 12-Feb-2018 18:54:41
+% Last Modified by GUIDE v2.5 09-May-2018 19:35:16
 
 % Begin initialization code - DO NOT EDIT
 
@@ -49,6 +49,7 @@ function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 guidata(hObject, handles);
 clear_all(hObject, eventdata, handles,'First');
+set(handles.query,'string','Query and Download');
 global selpath;
 selpath = x2mSetPath;
 LoadServers(handles);
@@ -80,23 +81,6 @@ function query_Callback(hObject, eventdata, handles)
     year = handles.agefrom.String;
     year_2 = handles.ageto.String;
     found = 0;
-
-    format shortg
-    c = clock;
-    year = c(1)-str2double(year);
-    year = num2str(year);
-        
-        if handles.range.Value == 1
-            
-            year_2 = c(1)-str2double(year_2);
-            year_2 = num2str(year_2);
-            
-        else
-            
-            year_2 = 'NaN';
-            
-        end
-        
        
            
            
@@ -285,8 +269,9 @@ if noSubjects > 0
     if strcmp(regexType,'regex Type')
        regexType = ''; 
     end
+    
     success = x2mDownloadData(selpath,data,maxSubjects,regexType,serversConnected,handles.Auto.Value,project,noSubjects);
-
+    
 
     clear_all(hObject, eventdata, handles,'Random');
 
@@ -312,6 +297,7 @@ end
 function handles = clear_Callback(hObject, eventdata, handles)
     
 handles = clear_all(hObject, eventdata, handles,'Random');
+projects = [];
 guidata(hObject, handles);
  
 %global variables functions - store/read
@@ -397,11 +383,11 @@ function handles = clear_all(hObject, eventdata, handles,type)
 
 
 function addServer_Callback(hObject, eventdata, handles)
-
+set_busy(hObject, eventdata, handles,1)
 servers = getGlobalDataSeversConnected;
 global selpath;
 servers = x2mAddServer(selpath,servers);
-
+set_busy(hObject, eventdata, handles,0)
 LoadServers(handles);
 
 
@@ -624,6 +610,7 @@ end
 
 % --- Executes on button press in DeleteServer.
 function DeleteServer_Callback(hObject, eventdata, handles)
+     set_busy(hObject, eventdata, handles,1)
  try
      global selpath;
      fullMatFileName = fullfile(selpath,  'servers.mat');
@@ -682,4 +669,36 @@ function DeleteServer_Callback(hObject, eventdata, handles)
      warning('on','all')
      disp(me.message);
  end
+  set_busy(hObject, eventdata, handles,0)
  
+
+
+% --- Executes on button press in Auto.
+    function Manual_Callback(hObject, eventdata, handles)
+% hObject    handle to Auto (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Auto
+if get(hObject,'Value') == '1'  
+    set(handles.query,'string','Query and Download');
+else
+    set(handles.query,'string','Query');
+end
+
+
+
+
+% --- Executes on button press in Auto.
+    function Auto_Callback(hObject, eventdata, handles)
+% hObject    handle to Auto (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Auto
+
+if get(hObject,'Value') == '1'
+    set(handles.query,'string','Query');      
+else
+      set(handles.query,'string','Query and Download');
+end

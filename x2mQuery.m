@@ -8,6 +8,9 @@
 
 function [data,found,modality,servers,projects] = x2mQuery ( servers,year,year_2,sex,logicIn)
 
+
+
+
 data = [];
 modality = [];
 projects = [];
@@ -16,6 +19,26 @@ for i = 1:size(servers,2)
 data_sub_temp = [];
 options = weboptions('Username',servers(i).user,'Password',servers(i).password,'Timeout',60);
 
+    if ~strcmp(servers(i).name,'https://db.humanconnectome.org')
+    format shortg
+    c = clock;
+    year_temp_from = c(1)-str2double(year);
+    year_temp_from = num2str(year_temp_from);
+        
+        if logicIn == 1
+            
+            year_temp_to = c(1)-str2double(year_2);
+            year_temp_to = num2str(year_temp_to);
+            
+        else
+            
+            year_temp_to = 'NaN';
+            
+        end
+    else
+        year_temp_from = year;
+        year_temp_to = year_2;
+    end
     
     query = '';
     logic = logicIn; 
@@ -41,16 +64,16 @@ options = weboptions('Username',servers(i).user,'Password',servers(i).password,'
             logic = '&lt;=';
             logic_2 = '&gt;=';
             
-            query = [ query ' YOB >= ' year_2 ' and YOB <= ' year];
+            query = [ query ' YOB >= ' year_temp_to ' and YOB <= ' year_temp_from];
             
         otherwise 
             logic = '=';                                               %change to "="
-            query = [ query ' YOB > ' year ];
+            query = [ query ' YOB > ' year_temp_from ];
     end
     
     
 url = servers(i).name;    
-x2mAddToLog('query',url,options.Username,'send - query','','','',query,'','');
+x2mAddToLog('query',url,options.Username,'send - query','','',query,'','');
 
 %construct XML to query database engine
 x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
@@ -105,32 +128,51 @@ x =  [ x  '<xdat:sequence>6</xdat:sequence>'];
 x =  [ x  '<xdat:type>integer</xdat:type>'];
 x =  [ x  '<xdat:header>MR Count</xdat:header>'];
 x =  [ x  '</xdat:search_field>'];
+if strcmp(servers(i).name,'https://db.humanconnectome.org')
+ x = [ x  '<xdat:search_field>' ];
+ x = [ x  '<xdat:element_name>xnat:subjectData</xdat:element_name>' ];
+ x = [ x  '<xdat:field_ID>AGE_RANGE</xdat:field_ID>' ];
+ x = [ x  '<xdat:sequence>7</xdat:sequence>' ];
+ x = [ x  '<xdat:type>string</xdat:type>' ];
+ x = [ x  '<xdat:header>AGE_RANGE</xdat:header></xdat:search_field> ' ];
+    
+    
+end
+
 % search by criteria
-if ~strcmp(year,'NaN') || ~strcmp(sex,'1')
+if ~strcmp(year_temp_from,'NaN') || ~strcmp(sex,'1')
     
 x =  [ x  '<xdat:search_where method="AND">'];
 
 end
 
-if ~strcmp(year,'NaN')
+if ~strcmp(year_temp_from,'NaN') && ~(strcmp(servers(i).name,'https://db.humanconnectome.org'))
     
 x =  [ x  '<xdat:child_set method="AND">'];
 x =  [ x  '<xdat:criteria override_value_formatting="0">'];
 x =  [ x  '<xdat:schema_field>xnat:subjectData.DOB</xdat:schema_field>'];
 x =  [ x  '<xdat:comparison_type>' logic '</xdat:comparison_type>'];
-x =  [ x  '<xdat:value>' year '</xdat:value>'];
+x =  [ x  '<xdat:value>' year_temp_from '</xdat:value>'];
 x =  [ x  '</xdat:criteria>'];
- if strcmp(year_2,'NaN')
+ if strcmp(year_temp_to,'NaN')
      
 x =  [ x  '</xdat:child_set>'];
 
  end
+else
+x =  [ x  '<xdat:child_set method="OR">'];
+x =  [ x  '<xdat:criteria>'];
+x =  [ x  '<xdat:schema_field>xnat:subjectData.AGE_RANGE</xdat:schema_field>'];
+x =  [ x  '<xdat:comparison_type>BETWEEN</xdat:comparison_type>'];
+x =  [ x  '<xdat:value>' year_temp_from '... and ' year_temp_to '...</xdat:value></xdat:criteria>'];
+x =  [ x  '</xdat:child_set>'];    
 end
-if ~strcmp(year_2,'NaN')
+
+if ~strcmp(year_temp_to,'NaN') && ~(strcmp(servers(i).name,'https://db.humanconnectome.org'))
 x =  [ x  '<xdat:criteria override_value_formatting="0">'];
 x =  [ x  '<xdat:schema_field>xnat:subjectData.DOB</xdat:schema_field>'];
 x =  [ x  '<xdat:comparison_type>' logic_2 '</xdat:comparison_type>'];
-x =  [ x  '<xdat:value>' year_2 '</xdat:value>'];
+x =  [ x  '<xdat:value>' year_temp_to '</xdat:value>'];
 x =  [ x  '</xdat:criteria>'];
 x =  [ x  '</xdat:child_set>'];
 
@@ -150,7 +192,7 @@ x = [ x '</xdat:child_set>'  ];
 
 end
 
-if ~strcmp(year,'NaN') || ~strcmp(sex,'1')
+if ~strcmp(year_temp_from,'NaN') || ~strcmp(sex,'1')
 x = [ x '</xdat:search_where>'  ];
 
 end
@@ -166,10 +208,10 @@ url_post = [url '/data/search?format=json'];
 
 try %obs³uga HTTP errorow
     data_query = webwrite(url_post,x, options); % domyœlnie na post
-    x2mAddToLog('query',url,options.Username,'query - OK','','','',query,data_query.ResultSet.totalRecords,'');
+    x2mAddToLog('query',url,options.Username,'query - OK','','',query,data_query.ResultSet.totalRecords,'');
 catch me
    disp(me.identifier);
-   x2mAddToLog('query',url,options.Username,['query - error - ' me.message],'','','',query,'','');
+   x2mAddToLog('query',url,options.Username,['query - error - ' me.message],'','',query,'','');
    
 end
 
@@ -182,17 +224,20 @@ for n = 1:str2double(data_query.ResultSet.totalRecords)
     try 
         
      data_inner_query  = webread(url_post2, options); % domyœlnie na get
+     disp([ 'Querying for detailed data of subject ' data_inner_query.items.data_fields.ID ])      
      x2mAddToLog('query',url,options.Username,['query inner - ok'],data_inner_query.items.data_fields.project,data_inner_query.items.data_fields.ID,'',query,'','');
     
+     
     catch me
         
         disp(me.identifier);
-        x2mAddToLog('query',url,options.Username,['inner query - error - ' me.message],'','','',query,'','');
+        x2mAddToLog('query',url,options.Username,['inner query - error - ' me.message],'','',query,'','');
         
     end
     
     data_sub_temp{n,1} = data_inner_query;
     
+
    
 end
 
@@ -210,7 +255,7 @@ end
                     index = size(data,1);
                     data(index +1,1) = data_sub_temp(k);
                     projects{index+1,1} = data_sub_temp{k}.items.data_fields.project; 
-        %            modality{index+1,1} = data_sub_temp{k}.items.children(counter).items(1).data_fields.modality; %zmienic
+        %            modality{index+1,1} = data_sub_temp{k}.items.children(counter).items(1).data_fields.modality; 
                     
                 end
                 
@@ -227,7 +272,7 @@ end
             for z = 1:size(data,1)
                 counter = size(data{z,1}.items.children,1);
                 projects{z,1} = data_sub_temp{z}.items.data_fields.project;
-         %       modality{z,1} = data_sub_temp{z}.items.children(counter).items(1).data_fields.modality;      %zmieniæ to !!
+         %       modality{z,1} = data_sub_temp{z}.items.children(counter).items(1).data_fields.modality;      
             end
         end
         
