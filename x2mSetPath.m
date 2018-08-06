@@ -1,6 +1,6 @@
 function [selpath,flagServers] = x2mSetPath
     selpath = [];
-    flagServers = flase;
+    flagServers = false;
     while isempty(selpath);
         selpath = uigetdir;
         if selpath == 0;
