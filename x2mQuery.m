@@ -6,10 +6,31 @@
 % year - year to query if logicIn = 0 , query for precise year else range 
 % year_2 - only if logicIn = 1 , then range for  year < Query < year2 
 
-function [data,found,modality,servers,projects] = x2mQuery ( servers,year,year_2,sex,logicIn)
+function [data,found,modality,servers,projects] = x2mQuery( servers,year,year_2,sex,logicIn,upTo)
 
+if isempty(upTo)
+    upTo = inf;
+else
+    upTo = upTo * 4;
+end
 
-
+currentCounter = 0;
+    switch sex
+        case 2
+            sex = '%U%';
+            query = 'Sex Unknown';
+        case 3
+            sex = '%M%';
+            query = 'Sex - Male';
+        case 4
+            sex = '%F%';
+            query = 'Sex - Female';
+        case 5 
+            sex = '%O%';
+            query = 'Sex - Others';
+        otherwise
+            sex = '1';
+    end
 
 data = [];
 modality = [];
@@ -37,43 +58,40 @@ options = weboptions('Username',servers(i).user,'Password',servers(i).password,'
         end
     else
         year_temp_from = year;
+        if logicIn == 1
         year_temp_to = year_2;
+        else
+        year_temp_to = year+5;
+        end
     end
     
     query = '';
     logic = logicIn; 
-    switch sex
-        case 2
-            sex = '%U%';
-            query = 'Sex Unknown';
-        case 3
-            sex = '%M%';
-            query = 'Sex - Male';
-        case 4
-            sex = '%F%';
-            query = 'Sex - Female';
-        case 5 
-            sex = '%O%';
-            query = 'Sex - Others';
-        otherwise
-            sex = '1';
-    end
+
     
     switch logic
         case 1 
             logic = '&lt;=';
             logic_2 = '&gt;=';
             
+            if  ~(strcmp(servers(i).name,'https://db.humanconnectome.org'))
             query = [ query ' YOB >= ' year_temp_to ' and YOB <= ' year_temp_from];
+            else
+                query = [ query ' AGE >= ' year_temp_to ' and AGE <= ' year_temp_from];
+            end
             
         otherwise 
             logic = '=';                                               %change to "="
-            query = [ query ' YOB > ' year_temp_from ];
+            if  ~(strcmp(servers(i).name,'https://db.humanconnectome.org'))
+            query = [ query ' YOB = ' year_temp_from ];
+            else
+                query = [ query ' AGE = ' year_temp_from ];
+            end
     end
     
     
 url = servers(i).name;    
-x2mAddToLog('query',url,options.Username,'send - query','','',query,'','');
+x2mAddToLog('query',url,options.Username,'send - query','','',query,'');
 
 %construct XML to query database engine
 x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
@@ -154,11 +172,11 @@ x =  [ x  '<xdat:schema_field>xnat:subjectData.DOB</xdat:schema_field>'];
 x =  [ x  '<xdat:comparison_type>' logic '</xdat:comparison_type>'];
 x =  [ x  '<xdat:value>' year_temp_from '</xdat:value>'];
 x =  [ x  '</xdat:criteria>'];
- if strcmp(year_temp_to,'NaN')
-     
-x =  [ x  '</xdat:child_set>'];
+     if strcmp(year_temp_to,'NaN')
 
- end
+        x =  [ x  '</xdat:child_set>'];
+
+     end
 else
 x =  [ x  '<xdat:child_set method="OR">'];
 x =  [ x  '<xdat:criteria>'];
@@ -208,16 +226,19 @@ url_post = [url '/data/search?format=json'];
 
 try %obs³uga HTTP errorow
     data_query = webwrite(url_post,x, options); % domyœlnie na post
-    x2mAddToLog('query',url,options.Username,'query - OK','','',query,data_query.ResultSet.totalRecords,'');
+    x2mAddToLog('query',url,options.Username,'query - OK','','',query,data_query.ResultSet.totalRecords);
 catch me
    disp(me.identifier);
-   x2mAddToLog('query',url,options.Username,['query - error - ' me.message],'','',query,'','');
+   x2mAddToLog('query',url,options.Username,['query - error - ' me.message],'','',query,'');
    
 end
 
 
 for n = 1:str2double(data_query.ResultSet.totalRecords)
-    
+    currentCounter = currentCounter + 1;
+    if currentCounter > upTo
+     break;
+    end
     test = data_query.ResultSet.Result(n).subjectid;
     url_post2 = strcat(url,'/data/archive/subjects/',test,'?format=json');
     
@@ -225,13 +246,13 @@ for n = 1:str2double(data_query.ResultSet.totalRecords)
         
      data_inner_query  = webread(url_post2, options); % domyœlnie na get
      disp([ 'Querying for detailed data of subject ' data_inner_query.items.data_fields.ID ])      
-     x2mAddToLog('query',url,options.Username,['query inner - ok'],data_inner_query.items.data_fields.project,data_inner_query.items.data_fields.ID,'',query,'','');
-    
+     x2mAddToLog('query',url,options.Username,['query inner - ok'],data_inner_query.items.data_fields.ID,'',query,'');
+   
      
     catch me
         
         disp(me.identifier);
-        x2mAddToLog('query',url,options.Username,['inner query - error - ' me.message],'','',query,'','');
+        x2mAddToLog('query',url,options.Username,['inner query - error - ' me.message],'','',query,'');
         
     end
     
@@ -301,4 +322,4 @@ found = size(data,1);
 
 
 
-
+    

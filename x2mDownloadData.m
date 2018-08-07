@@ -20,7 +20,7 @@ end
 
 SubjectsCounter = 0;
 [success_output] = 0;
-number_counter = 0;
+number_counter = 1;
 for n = 1:size(data,1)
   
   %break if maxSubjects condition fulfilled
@@ -77,12 +77,14 @@ for n = 1:size(data,1)
     for i=1:counterExperiment
         success = 0; 
         
-        
+        try %http errors log
         proj = data{n,1}.items.children(counter).items(i).data_fields.project;
         sub = data{n,1}.items.children(counter).items(i).data_fields.subject_ID;    
         exp = data{n,1}.items.children(counter).items(i).data_fields.id;
 %        modality = data{n,1}.items.children(counter).items(i).data_fields.modality;
         
+            
+           
             
         
         
@@ -102,7 +104,8 @@ for n = 1:size(data,1)
                 end
             end
          if isempty(scansTable)
-            x2mAddToLog('download',data{n,2},data{n,3},'none regex found',sub,exp,['regex-> ' regexType],'','');
+            disp([ 'Downloading data for subject ' sub ' omitted because of regex ' regexType])
+            x2mAddToLog('Download',data{n,2},data{n,3},'none regex found',sub,exp,['regex-> ' regexType],'');
             continue
          end    
             
@@ -130,10 +133,10 @@ for n = 1:size(data,1)
         
         
         options = weboptions('Username',data{n,3},'Password',data{n,4},'Timeout',940);
-
-        try %http errors log
+        
+        
             dataDownload = webread(url, options); % default - get
-            x2mAddToLog('download',data{n,2},data{n,3},'OK',sub,exp,['regex-> ' regexType],'','');
+            x2mAddToLog('download',data{n,2},data{n,3},'OK',sub,exp,['regex-> ' regexType],'');
         %download data folder creation
             c = clock;
 
@@ -169,9 +172,9 @@ for n = 1:size(data,1)
             success = 1;
             warning('on','all')
         catch me                                                                     %catch error and add it to log
-            number_counter = number_counter + 1;
+            %number_counter = number_counter + 1;
             disp([ 'Downloaded subject '  sub ' - error check log ' num2str(number_counter) ' out of ' num2str(noSubjects) ' subjects'])
-            x2mAddToLog('download',data{n,2},data{n,3},me.message,sub,exp,['regex-> ' regexType],'','');
+            x2mAddToLog('download',data{n,2},data{n,3},me.message,sub,exp,['regex-> ' regexType],'');
             if success ~= 1;
                 success = 0;
             end
@@ -182,13 +185,18 @@ for n = 1:size(data,1)
                                  %if success add 1 to counter of subjects downloaded
     
     if success == 1;
-        number_counter = number_counter + 1;
+        %number_counter = number_counter + 1;
         disp([ 'Downloaded subject '  sub ' - completed ' num2str(number_counter) ' out of ' num2str(noSubjects) ' subjects'])
         [success_output] = 1;
     end
      else %HCP
          
-        success = 0; 
+       
+        
+        
+
+        try %http errors log
+         success = 0; 
         
         
         proj = data{n,1}.items.data_fields.project;
@@ -203,10 +211,6 @@ for n = 1:size(data,1)
         url_files = [ data{n,2} '/data/projects/' proj '/subjects/' sub '/experiments/' exp '/files' ]; %Give  ALL instead of 1%
         options = weboptions('Username',data{n,3},'Password',data{n,4},'Timeout',940);
         
-        
-        
-
-        try %http errors log
             data_files = webread(url_files, options); % default - get
             
             if isempty(data_files.ResultSet.Result)
@@ -239,7 +243,7 @@ for n = 1:size(data,1)
                  check = '';
                  url_download = [data{n,2} data_files.ResultSet.Result(z).URI '?format=zip'];
                  dataDownload = webread(url_download, options);
-                 x2mAddToLog('download',data{n,2},data{n,3},'OK',sub,exp,['regex-> ' regexType],data_files.ResultSet.Result(z).Name,'');    
+                 x2mAddToLog('Download',data{n,2},data{n,3},'OK',sub,exp,['regex-> ' regexType],data_files.ResultSet.Result(z).Name);    
                 
 
                               
@@ -276,9 +280,9 @@ for n = 1:size(data,1)
                 
                 unzip(fullFileName,folder);
                 delete ( fullFileName );
-                fullFileName = data_files.ResultSet.Result(z).Name;
-                gunzip(fullFileName,folder);
-                delete ( fullFileName );
+%                 fullFileName = data_files.ResultSet.Result(z).Name;
+%                 gunzip(fullFileName,folder);
+%                 delete ( fullFileName );
                 success = 1;
                 warning('on','all')
          
@@ -291,7 +295,7 @@ for n = 1:size(data,1)
                catch me                                                                     %catch error and add it to log
                
                 disp([ 'Downloaded subject '  sub ' - error check log ' num2str(number_counter) ' out of ' num2str(noSubjects) ' subjects' ' file' baseFileName])
-                x2mAddToLog('download',data{n,2},data{n,3},me.message,sub,exp,['regex-> ' regexType],'','');
+                x2mAddToLog('download',data{n,2},data{n,3},me.message,sub,exp,['regex-> ' regexType],'');
                 if success ~= 1;
                     success = 0;
                 end
