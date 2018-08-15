@@ -11,7 +11,7 @@ function [data,found,modality,servers,projects] = x2mQuery( servers,year,year_2,
 if isempty(upTo)
     upTo = inf;
 else
-    upTo = upTo * 4;
+    upTo = upTo * 2;
 end
 
 currentCounter = 0;

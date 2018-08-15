@@ -82,9 +82,9 @@ function query_Callback(hObject, eventdata, handles)
     year_2 = handles.ageto.String;
     found = 0;
        
+           tic;
            
-           
-           [data,found,modality,servers,projects] =  x2mQuery( servers,year,year_2,handles.Sex.Value,handles.range.Value);
+           [data,found,modality,servers,projects] =  x2mQuery( servers,year,year_2,handles.Sex.Value,handles.range.Value,str2num(handles.upTo.String));
                    
      
          if handles.Auto.Value ~= 1
@@ -153,6 +153,7 @@ function query_Callback(hObject, eventdata, handles)
     end 
         
     end
+   QueryTimerVal = tic
      
       
        
@@ -246,7 +247,7 @@ end
 
 
 function download_Callback(hObject, eventdata, handles,regexType)
-
+tic;
 set_busy(hObject, eventdata, handles,1) % set busy 
 % checkGlobalServersToDownload(handles);
 data = getGlobalData;
@@ -291,6 +292,7 @@ if noSubjects > 0
 else
     msgbox('Operation can not be done since you selected 0 subjects via "by Project selection"');
 end
+DownloadTimerVal = tic
 
 
 
@@ -405,7 +407,7 @@ try
     
     for n = 1:size(servers,2)
         try  
-           %  servers(n).password = x2mPasswordDecrypt( servers(n).password);
+           
              x2mCheckConnection(servers(n).name,servers(n).user,servers(n).password,'Check connection');
              servers(n).NumberOfHits = '0';
              servers(n).Connect = 'X';
@@ -433,7 +435,7 @@ handles.ServersConnectedCount.String = [ stringConnectedServersCounter ' Servers
 function set_busy(hObject,eventdata,handles,flag_busy)
 
 %set Global show BUSY
-if flag_busy == 1 && handles.Manual.Value == 1
+if flag_busy == 1 
     handles.Busy.Visible = 'On';
     set(handles.Busy, 'Visible','On');
 else
@@ -441,10 +443,8 @@ else
 end
 
 guidata(hObject, handles);
-pause(0.2);
-for i = 1:size(handles)        % maybe try to block buttons from being clicked?
-    
-end
+pause(1);
+
 
 function check = checkObligatory(handles)           %checks obligatory fields;
  
@@ -496,7 +496,6 @@ function handles = set_gui_handles(handles)
    set(handles.Busy,'visible','off')
    set(handles.regexType,'String','regex Type')
    set(handles.Sex,'Value',1)
-  % a = size(fieldnames(handles)) - 26;
    fieldnamesV = fieldnames(handles);
    if size(fieldnamesV,1) > 28 
        for i = 29:size(fieldnamesV,1)
@@ -553,35 +552,19 @@ end
 
 
 function regexType_Callback(hObject, eventdata, handles)
-% hObject    handle to regexType (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of regexType as text
-%        str2double(get(hObject,'String')) returns contents of regexType as a double
 
 
-% --- Executes during object creation, after setting all properties.
+
 function regexType_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to regexType (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
-% --- Executes on selection change in project.
-function project_Callback(hObject, eventdata, handles)
-% hObject    handle to project (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns project contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from project
+function project_Callback(hObject, eventdata, handles)
+
 counter = 0;
 global project_counter;
 global project;
@@ -595,14 +578,9 @@ set(handles.found,'String',stringFound,'visible','on','Value',counter);
 
 
 
-% --- Executes during object creation, after setting all properties.
-function project_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to project (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: popupmenu controls usuall have a white background on Windows.
-%       See ISPC and COMPUTER.
+function project_CreateFcn(hObject, eventdata, handles)
+
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -673,13 +651,9 @@ function DeleteServer_Callback(hObject, eventdata, handles)
  
 
 
-% --- Executes on button press in Auto.
-    function Manual_Callback(hObject, eventdata, handles)
-% hObject    handle to Auto (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of Auto
+    function Manual_Callback(hObject, eventdata, handles)
+
 if get(hObject,'Value') == '1'  
     set(handles.query,'string','Query and Download');
 else
@@ -691,11 +665,7 @@ end
 
 % --- Executes on button press in Auto.
     function Auto_Callback(hObject, eventdata, handles)
-% hObject    handle to Auto (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of Auto
 
 if get(hObject,'Value') == '1'
     set(handles.query,'string','Query');      

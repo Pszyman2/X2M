@@ -238,6 +238,7 @@ for n = 1:size(data,1)
                  end
                   if isempty(check) 
                       disp([ 'File ' data_files.ResultSet.Result(z).Name ' for subject' sub ' omitted because of regex ' regexType])
+                       x2mAddToLog('Download',data{n,2},data{n,3},'none regex found',sub,exp,['regex-> ' regexType],data_files.ResultSet.Result(z).Name);     
                       continue
                   end
                  check = '';
