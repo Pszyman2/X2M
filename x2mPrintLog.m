@@ -1,4 +1,5 @@
 function x2mPrintLog(selpath) 
+%print log from log trace
 global log;
 c = clock;
 year = num2str(c(1),'%02d');

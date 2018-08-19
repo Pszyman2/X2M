@@ -1,5 +1,6 @@
 function x2mAddServersNoGui(selpath)
 servers = [];
+
 while isempty(servers)    
     servers = x2mAddServer(selpath,servers);
 	

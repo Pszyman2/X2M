@@ -1,4 +1,5 @@
 function password = x2mPasswordDecrypt( password )
+%this is unused
 %basic decryption with Caesar Cipher
 % %
 % sizeTemp = size(password,2)

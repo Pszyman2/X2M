@@ -224,7 +224,7 @@ x =  [ x  '</xdat:bundle>'];
 
 url_post = [url '/data/search?format=json'];
 
-try %obs³uga HTTP errorow
+try %HTTP error handler
     data_query = webwrite(url_post,x, options); % domyœlnie na post
     x2mAddToLog('query',url,options.Username,'query - OK','','',query,data_query.ResultSet.totalRecords);
 catch me
@@ -296,13 +296,9 @@ end
          %       modality{z,1} = data_sub_temp{z}.items.children(counter).items(1).data_fields.modality;      
             end
         end
-        
     end
-               
-
 end
 
-% x{1,size(x,2)+1} = 'ALL'; 2bechecked
 projects_temp = projects;
 projects = unique(projects);
 for i = 1:size(projects,1)

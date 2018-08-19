@@ -7,7 +7,6 @@ try
     servers_temp = load(fullMatFileName);
     servers_temp = servers_temp.servers;
     me = 'No';
-    
     for n = 1:size(servers_temp,2) %check connection of servers, if accesable then add it to [servers]
         try  
              x2mCheckConnection(servers_temp(n).name,servers_temp(n).user,servers_temp(n).password,'Check connection');
@@ -21,8 +20,7 @@ try
               disp(baseException.message);
     	end
         
-    end
-       
+    end      
 catch me
               disp('No servers configurated or they are not in path folder');
               disp(me.message);

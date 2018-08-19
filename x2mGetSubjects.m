@@ -36,7 +36,6 @@ check_servers = exist('servers');
 if check_servers == 0
     servers = [];
 end   
-
 % if servers is empty try to load servers
 if isempty(servers)
    servers = x2mLoadServersNoGui;
@@ -45,9 +44,6 @@ if isempty(servers)
       return
    end 
 end
-
-
-
 
 dataSubjects = [];
 for i = 1:size(servers,2)
@@ -94,5 +90,4 @@ for i = 1:size(servers,2)
     catch me
             x2mAddToLog('subject-query',server,user,me.message ,'','','','','','');
     end
-
 end    

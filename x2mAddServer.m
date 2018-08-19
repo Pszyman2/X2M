@@ -1,6 +1,5 @@
 function servers = x2mAddServer(selpath,servers)
 
-
 if size(servers,1) > 0    
     servers = rmfield(servers,{'Connect','NumberOfHits','Check'});    
     field1 = 'name';
@@ -21,10 +20,7 @@ if size(servers,1) > 0
         try
 
             x2mCheckConnection(value1,value2,value3,'Adding server');
-          %  passwordEncrypted = x2mPasswordEncrypt(value3);
             servers(end+1) = struct(field1,value1,field2,value2,field3,value3);
-           % setGlobalDataServersConnected(servers(end));
-           % servers(end).password = passwordEncrypted;
             servers = servers;
             %make servers Unique
                 a= {servers.name};
@@ -63,12 +59,7 @@ else
         try
 
             x2mCheckConnection(value1,value2,value3,'Adding server');
-          %  passwordEncrypted = x2mPasswordEncrypt(value3);
-            servers = struct(field1,value1,field2,value2,field3,value3);
-       %     setGlobalDataServersConnected(servers);
-       %     servers.password = passwordEncrypted;
-            
-            %folder = selpath;
+            servers = struct(field1,value1,field2,value2,field3,value3);    
             fullMatFileName = fullfile(selpath,  'servers.mat');
             save(fullMatFileName,'servers')
         catch baseException

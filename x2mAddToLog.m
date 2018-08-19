@@ -18,7 +18,6 @@ hour = num2str(c(4),'%02d');
 min = num2str(c(5),'%02d');
 sec = num2str(ceil(c(6)),'%02d');
 
-%allways filled data;
 counter = size(time,1) + 1 ;
 time{counter,1} = [ hour ':' min ':' sec ];
 action{counter,1} = type;
@@ -26,11 +25,8 @@ servers{counter,1} = server;
 users{counter,1} = user;
 
 if ~strcmp(error,'NONE')
-    errors{counter,1} = error;
-else
-    
+    errors{counter,1} = error;    
 end
-
 
 querys{counter,1} = query;
 subjects{counter,1} = subject;

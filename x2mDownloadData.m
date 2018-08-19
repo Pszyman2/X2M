@@ -137,7 +137,9 @@ for n = 1:size(data,1)
         
             dataDownload = webread(url, options); % default - get
             x2mAddToLog('download',data{n,2},data{n,3},'OK',sub,exp,['regex-> ' regexType],'');
-        %download data folder creation
+            
+           %download data folder creation
+           
             c = clock;
 
             %create home folder with name YYYY_MM_DD
@@ -204,8 +206,7 @@ for n = 1:size(data,1)
         exp = data{n,1}.items.children(counter).items(1).data_fields.id;
 %        modality = data{n,1}.items.children(counter).items(i).data_fields.modality;
        
-            
-
+          
         %Rest download function
         
         url_files = [ data{n,2} '/data/projects/' proj '/subjects/' sub '/experiments/' exp '/files' ]; %Give  ALL instead of 1%
@@ -226,12 +227,10 @@ for n = 1:size(data,1)
                      for j = 1:size(regexTable,1) %check if in regexTable
                             check = strfind(data_files.ResultSet.Result(z).Name,upper(regexTable{j}));
 
-                            if isempty(check)                                            % if there is no pattern in string continue to next loop
-                                
+                            if isempty(check)                                            % if there is no pattern in string continue to next loop                                
                                 check = '';
                                 continue
-                            else
-                                
+                            else                             
                                 break
                             end
                      end
@@ -246,9 +245,6 @@ for n = 1:size(data,1)
                  dataDownload = webread(url_download, options);
                  x2mAddToLog('Download',data{n,2},data{n,3},'OK',sub,exp,['regex-> ' regexType],data_files.ResultSet.Result(z).Name);    
                 
-
-                              
-            
                 %download data folder creation
                 c = clock;
 
@@ -263,7 +259,6 @@ for n = 1:size(data,1)
 
                 folder_inner_name = strsplit(data{n,2},'://');
                 folder_inner_name = strsplit(folder_inner_name{2},'.');
-
 
                 mkdir(folder_date_name,folder_inner_name{1});
 
@@ -305,10 +300,7 @@ for n = 1:size(data,1)
                 end
         
     end
-    
-                                     
-    
-    
+                                      
      end
         SubjectsCounter = SubjectsCounter + success;
         number_counter = number_counter + 1;

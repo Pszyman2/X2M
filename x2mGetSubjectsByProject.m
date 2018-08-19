@@ -9,9 +9,6 @@
     %dataSubjects - data of subjects by Project in structure
     %projectData - if input is empty then call function getProjects this is reurnt of it's call
 
-
-
-
 function [subjectsByProjectData,projectsData] = x2mGetSubjectsByProject(servers,projectsData)
 
 check_projectsData = exist('projectsData');
@@ -38,8 +35,6 @@ if isempty(projectsData)
    projectsData = x2mGetProjects(servers);
 end
 
-
-
 subjectsByProjectData = [];
 for i = 1:size(servers,2)
     %set basic parameters
@@ -61,8 +56,6 @@ for i = 1:size(servers,2)
         try %http errors log
                 dataQuery = webread(url, options); % default - get
                 x2mAddToLog('subjectByProject-querry',server,user,'OK','','','','',dataQuery.ResultSet.totalRecords,'');
-
-
                  
                  subjectsByProjectData.(server_inner_name{1}).server = server;
                  subjectsByProjectData.(server_inner_name{1}).numberOfHits = subjectsByProjectData.(server_inner_name{1}).numberOfHits + str2num(dataQuery.ResultSet.totalRecords);

@@ -47,9 +47,6 @@ if isempty(servers)
    end 
 end
 
-
-
-
 dataSubjects = [];
 for i = 1:size(servers,2)
     %set basic parameters

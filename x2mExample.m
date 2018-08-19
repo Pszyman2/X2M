@@ -24,6 +24,7 @@ function x2mExample(projectName)
         x2mDownloadDataSubjectNoGui(selpath,servers,dataSubjectsDetailed);
 
         x2mPrintLog;
+        
         disp('end of action check selpath folder for your data, and read log for additional information');
      else
          disp('check servers.mat in selpath, there is an error with servers or the authorization failed');

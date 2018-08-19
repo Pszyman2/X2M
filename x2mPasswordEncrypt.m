@@ -1,4 +1,5 @@
 function password = x2mPasswordEncrypt ( password )
+%this is unused
 %basic encryption with Caesar Cipher
 %shift number is randomized in the range of 1:26, number of shifts is contained within password itself
 % shift = randi([10,26]);

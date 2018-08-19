@@ -39,13 +39,11 @@ for i = 1:size(servers,2)
             dataQuery = webread(url, options); % default - get
             x2mAddToLog('users-query',server,user,'OK','','','','',dataQuery.ResultSet.totalRecords,'');
              server_inner_name = strsplit(server,'://');
-             server_inner_name = strsplit(server_inner_name{2},'.');
-      
+             server_inner_name = strsplit(server_inner_name{2},'.');      
              usersData.(server_inner_name{1}).data = dataQuery.ResultSet.Result;
              usersData.(server_inner_name{1}).server = server;
              usersData.(server_inner_name{1}).numberOfHits = dataQuery.ResultSet.totalRecords;
     catch me
             x2mAddToLog('users-query',server,user,me.message ,'','','','','','');
     end
-
 end    

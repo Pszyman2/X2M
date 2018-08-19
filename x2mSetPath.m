@@ -7,8 +7,7 @@ function [selpath,flagServers] = x2mSetPath
             selpath = [];
             disp('Please provide path to your data folder')
             continue
-        end
-        
+        end       
         try
         % try to load servers if succesful set flagServers to 'X'
         fullMatFileName = fullfile(selpath,  'servers.mat');

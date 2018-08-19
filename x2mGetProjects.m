@@ -47,6 +47,4 @@ for i = 1:size(servers,2)
     catch me
             x2mAddToLog('projects-query',server,user,me.message ,'','','','','','');
     end
-       
-
 end    

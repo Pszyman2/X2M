@@ -45,12 +45,10 @@ function x2mDownloadDataSubjectNoGui(selpath,servers,dataSubjectsDetailed)
                     warning('off','all')
                     mkdir(folder_date_name);
 
-
                     %create subfolders with specific server data SERVERNAME
 
                     folder_inner_name = strsplit(host,'://');
                     folder_inner_name = strsplit(folder_inner_name{2},'.');
-
 
                     mkdir(folder_date_name,folder_inner_name{1});
 
