@@ -295,7 +295,10 @@ for n = 1:size(data,1)
             end
                catch me                                                                     %catch error and add it to log
                
-                disp([ 'Downloaded subject '  sub ' - error check log ' num2str(number_counter) ' out of ' num2str(noSubjects) ' subjects' ' file' baseFileName])
+                   if isempy(baseFileName)
+                       baseFileName = '';
+                   end
+                disp([ 'Downloaded subject '  sub ' - error check log ' num2str(number_counter) ' out of ' num2str(noSubjects) ' subjects' ' file' ])
                 x2mAddToLog('download',data{n,2},data{n,3},me.message,sub,exp,['regex-> ' regexType],'');
                 if success ~= 1;
                     success = 0;
